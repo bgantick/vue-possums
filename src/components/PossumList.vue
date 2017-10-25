@@ -2,6 +2,8 @@
   <section class="section">
     <div class="container">
       <h1 class="title">Registered Possums:</h1>
+      <label for="weight">Search:</label>
+      <input v-model="search" id="seach" type="text" />
       <ul class="columns is-flex-tablet is-flex-desktop">
         <li v-for="possum in possums" class="column is-one-quarter-desktop is-half-tablet">
           <div class="card">
@@ -36,22 +38,48 @@
 
 <script>
 import {HTTP} from '../http-common'
+import axios from 'axios'
 
 export default {
   name: 'PossumList',
   data () {
     return {
+      search: '',
       possums: []
     }
   },
+  watch: {
+    search: function () {
+      this.fetchNew()
+    }
+  },
+  methods: {
+    getResults: function () {
+      const vm = this
+      HTTP.get(`possums`)
+        .then(response => {
+          vm.possums = []
+          vm.possums = response.data.results
+        })
+        .catch(e => {
+          console.log(e)
+        })
+    },
+    fetchNew: function () {
+      const vm = this
+      axios.get(`http://localhost:3000/api/v1/possums?search=${this.search}`)
+        .then(response => {
+          console.log(response.request)
+          vm.possums = []
+          vm.possums = response.data.results
+        })
+        .catch(e => {
+          console.log(e)
+        })
+    }
+  },
   mounted () {
-    HTTP.get(`possums`)
-      .then(response => {
-        this.possums = response.data.results
-      })
-      .catch(e => {
-        console.log(e)
-      })
+    this.getResults()
   }
 }
 </script>
@@ -59,5 +87,9 @@ export default {
 <style scoped>
   ul {
     flex-wrap: wrap;
+  }
+
+  input {
+    margin-bottom: 2rem;
   }
 </style>
