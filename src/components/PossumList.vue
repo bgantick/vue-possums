@@ -38,7 +38,6 @@
 
 <script>
 import {HTTP} from '../http-common'
-import axios from 'axios'
 
 export default {
   name: 'PossumList',
@@ -50,26 +49,18 @@ export default {
   },
   watch: {
     search: function () {
-      this.fetchNew()
+      this.getResults()
     }
   },
   methods: {
     getResults: function () {
       const vm = this
-      HTTP.get(`possums`)
+      let query = ''
+      if (this.search.length > 0) {
+        query = `?search=${this.search}`
+      }
+      HTTP.get(`possums${query}`)
         .then(response => {
-          vm.possums = []
-          vm.possums = response.data.results
-        })
-        .catch(e => {
-          console.log(e)
-        })
-    },
-    fetchNew: function () {
-      const vm = this
-      axios.get(`http://localhost:3000/api/v1/possums?search=${this.search}`)
-        .then(response => {
-          console.log(response.request)
           vm.possums = []
           vm.possums = response.data.results
         })
